@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const compression = require("compression"); // ✅ اضافه شد
+const compression = require("compression");
 
 // اتصال به دیتابیس
 const BariketDB = require("./db/Bariket");
@@ -9,9 +9,9 @@ const BariketDB = require("./db/Bariket");
 // روترها
 const productsRouter = require("./routes/productsRoutes");
 const categoriesRouter = require("./routes/categoriesRoutes");
-const accountsRouter = require("./routes/accountsRoutes.js");
+const accountsRouter = require("./routes/accountsRoutes");
 const commentsRouter = require("./routes/commentsRoutes");
-const ordersRouter = require("./routes/ordersRoutes.js");
+const ordersRouter = require("./routes/ordersRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,8 +20,6 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// ✅ فعال‌کردن gzip فشرده‌سازی
 app.use(compression());
 
 // 📂 پوشه آپلودها (تصاویر)
@@ -34,12 +32,15 @@ app.use("/api/accounts", accountsRouter);
 app.use("/api/comments", commentsRouter);
 app.use("/api/orders", ordersRouter);
 
-// ---------- Root ----------
-app.get("/", (req, res) => {
-  res.send("Bariket API is running ✅ (with gzip compression)");
+// ---------- Serve React Frontend ----------
+const frontendPath = path.join(__dirname, "../frontend/build");
+app.use(express.static(frontendPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 // ---------- Start Server ----------
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT} - server.js:44`);
+  console.log(`🚀 Server running on port ${PORT} - server.js:45`);
 });
