@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Vazir';
+  src: url('/fonts/Vazir.woff2') format('woff2');
+  font-display: swap;
+}
+body {
+  font-family: 'Vazir', sans-serif;
+}
+
+/* Navbar links ثابت و بدون shift */
+.nav-link {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  border: 2px solid transparent;
+}
+.nav-link.active {
+  border-color: white;
+}
+
+/* Placeholder برای آیکون‌ها */
+.icon-placeholder {
+  width: 20px;
+  height: 20px;
+  background-color: #e5e7eb; /* tailwind gray-200 */
+  border-radius: 4px;
+  flex-shrink: 0;
+}
