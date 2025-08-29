@@ -1,15 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Bariket backend",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
+    "start": "node index.js",
+    "install-deps": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
@@ -18,6 +17,7 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "mysql2": "^3.14.3",
+    "node-fetch": "^3.3.2",
     "sharp": "^0.34.3"
   }
 }

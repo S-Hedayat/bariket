@@ -100,7 +100,4 @@ productsRouter.get("/", async (req, res) => {
   }
 });
 
-// 📤 ارائه فایل‌ها استاتیک
-productsRouter.use("/uploads", express.static(uploadDir));
-
 module.exports = productsRouter;
