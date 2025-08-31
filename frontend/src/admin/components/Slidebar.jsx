@@ -1,6 +1,7 @@
 import { useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
-import {Home, Menu, X, Grid, Users, Clipboard, Package, Settings as SettingsIcon } from "lucide-react";
+import { Home, Menu, X, Grid, Users, Clipboard, Package, Settings as SettingsIcon } from "lucide-react";
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -15,31 +16,29 @@ const Sidebar = () => {
     { to: "/admin/settings", label: "Settings", icon: <SettingsIcon size={16} /> },
   ];
 
-  const linkClass =
-    "flex items-center gap-2 p-2 rounded hover:bg-blue-100 transition-colors";
-
+  const linkClass = "flex items-center gap-2 p-2 rounded hover:bg-blue-100 transition-colors";
   const activeClass = "bg-blue-200 font-semibold";
 
   return (
     <>
       {/* موبایل */}
-      <div className="md:hidden flex items-center justify-between bg-gray-100 p-4 shadow">
-        <span className="font-bold text-lg">Admin Panel</span>
-        <button onClick={() => setOpen(!open)}>
+      <div className="md:hidden bg-gray-100 p-4 shadow">
+        <button
+          onClick={() => setOpen(!open)}
+          aria-label={open ? "بستن منو" : "باز کردن منو"}
+          aria-expanded={open}
+        >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* منوی موبایل */}
       {open && (
         <div className="md:hidden bg-gray-100 p-4 flex flex-col gap-2">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
-              className={({ isActive }) =>
-                `${linkClass} ${isActive ? activeClass : ""}`
-              }
+              className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
               onClick={() => setOpen(false)}
             >
               {link.icon} {link.label}
@@ -54,9 +53,7 @@ const Sidebar = () => {
           <NavLink
             key={link.to}
             to={link.to}
-            className={({ isActive }) =>
-              `${linkClass} ${isActive ? activeClass : ""}`
-            }
+            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
           >
             {link.icon} {link.label}
           </NavLink>
@@ -66,4 +63,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

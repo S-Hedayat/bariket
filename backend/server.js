@@ -19,7 +19,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), { maxAge: '7d' }));
+
 
 app.use("/api/products", productsRouter);
 app.use("/api/categories", categoriesRouter);
@@ -37,5 +38,5 @@ app.get(/.*/, (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} - server.js:40`);
+  console.log(`🚀 Server running on port ${PORT} - server.js:41`);
 });

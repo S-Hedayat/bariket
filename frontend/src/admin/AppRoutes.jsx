@@ -1,5 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
+
+import Header from "./components/Header"; // هدر مستقیم
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Products = lazy(() => import("./pages/Products"));
@@ -19,11 +21,14 @@ const AppRoutes = () => {
   useEffect(() => {
     import("./pages/Dashboard");
     import("./pages/Products");
+    import("./pages/Orders");
   }, []);
 
   return (
     <Suspense fallback={<LoadingFallback />}>
+      <Header />
       <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="orders" element={<Orders />} />

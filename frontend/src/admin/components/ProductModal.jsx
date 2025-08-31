@@ -20,12 +20,12 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
         brand: product.brand || "",
         model: product.model || "",
         priceUSD: product.priceUSD || "",
-        categoryID: product.categoryID || "",
+        categoryID: product.categoryID || categories[0]?.id || 1,
         avator: product.avator || "",
       });
       setFile(null);
     }
-  }, [product]);
+  }, [product, categories]);
 
   if (!product) return null;
 
@@ -50,7 +50,7 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
     try {
       onSave({
         ...formData,
-        avator: imagePath, // ✅ مسیر جدید تصویر
+        avator: imagePath,
         categoryID: Number(formData.categoryID) || categories[0]?.id || 1,
         id: product.id,
       });
@@ -63,9 +63,14 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md space-y-4">
-        <h2 className="text-xl font-semibold">ویرایش محصول</h2>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-modal-title"
+    >
+      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md space-y-4 overflow-auto max-h-[90vh]">
+        <h2 id="product-modal-title" className="text-xl font-semibold">ویرایش محصول</h2>
 
         <input
           type="text"
@@ -108,7 +113,7 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
         {formData.avator && !file && (
           <img
             src={`http://localhost:5000${formData.avator}`}
-            alt={formData.model}
+            alt={`${formData.brand} ${formData.model}`}
             className="w-24 h-24 object-cover rounded"
             onError={(e) => e.target.style.display = "none"}
           />
@@ -119,6 +124,7 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             disabled={saving}
+            aria-label="لغو و بستن مودال"
           >
             لغو
           </button>
@@ -126,6 +132,7 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
             onClick={handleSave}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             disabled={saving}
+            aria-label="ذخیره تغییرات محصول"
           >
             {saving ? "در حال ذخیره..." : "ذخیره"}
           </button>
@@ -135,4 +142,4 @@ const ProductModal = ({ product, categories = [], onClose, onSave }) => {
   );
 };
 
-export default ProductModal;
+export default React.memo(ProductModal);

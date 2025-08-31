@@ -1,16 +1,16 @@
-import Sidebar from "./components/Slidebar";
-import Header from "./components/Header";
+import { lazy, useMemo } from "react";
 import AppRoutes from "./AppRoutes";
+
+const Sidebar = lazy(() => import("./components/Slidebar"));
 
 const AdminLayout = () => {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <Header />
-        <div className="p-4">
+        <main className="p-4 flex-1 overflow-auto">
           <AppRoutes />
-        </div>
+        </main>
       </div>
     </div>
   );

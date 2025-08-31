@@ -1,14 +1,14 @@
 import React from "react";
-import { motion } from "framer-motion";
 
-const PromoBanner = () => {
-  const text = "🎉 تخفیف ویژه تا پنجاه برای مدت محدود!";
-
+const PromoBanner = ({massage}) => {
   return (
-    <div className="bg-gradient-to-r from-pink-800 via-pink-300 to-red-600 overflow-hidden">
-     {text}
+    <div className=" min-w-screen h-[55px] bg-red-500 text-lx  
+    text-center  text-white ">
+      <p>
+       {massage}
+      </p>
     </div>
   );
-};
+}
 
 export default PromoBanner;

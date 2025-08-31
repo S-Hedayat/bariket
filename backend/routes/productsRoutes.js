@@ -1,3 +1,4 @@
+// backend/routes/productsRoutes.js
 const express = require("express");
 const BariketDB = require("../db/Bariket");
 const multer = require("multer");
@@ -23,7 +24,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // ⛔ محدودیت حجم 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = [".png", ".jpg", ".jpeg", ".webp"];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -54,9 +55,6 @@ productsRouter.post("/upload", upload.single("avator"), async (req, res) => {
       .toFormat("webp", { quality: 70 })
       .toFile(thumbPath);
 
-    // حذف فایل اصلی
-    fs.unlinkSync(inputPath);
-
     res.json({
       filePath: `/uploads/${baseName}.webp`,
       thumbnailPath: `/uploads/${baseName}-thumb.webp`,
@@ -80,7 +78,7 @@ productsRouter.get("/", async (req, res) => {
       SELECT p.id, p.brand, p.model, p.priceUSD, p.avator, c.name AS categoryName
       FROM products p
       JOIN categories c ON p.categoryID = c.id
-      ORDER BY p.id ASC
+      ORDER BY p.id DESC
       LIMIT ? OFFSET ?
       `,
       [limit, offset]
@@ -97,6 +95,67 @@ productsRouter.get("/", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching products", error: err.message });
+  }
+});
+
+// ➕ افزودن محصول
+productsRouter.post("/", async (req, res) => {
+  try {
+    const { brand, model, priceUSD, categoryID, avator } = req.body;
+
+    if (!brand || !model || !priceUSD || !categoryID || !avator) {
+      return res.status(400).json({ message: "تمام فیلدها الزامی است" });
+    }
+
+    const [result] = await BariketDB.query(
+      `INSERT INTO products (brand, model, priceUSD, categoryID, avator) VALUES (?, ?, ?, ?, ?)`,
+      [brand, model, priceUSD, categoryID, avator]
+    );
+
+    res.status(201).json({ id: result.insertId, brand, model, priceUSD, categoryID, avator });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "خطا در افزودن محصول", error: err.message });
+  }
+});
+
+// ✏️ ویرایش محصول
+productsRouter.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { brand, model, priceUSD, categoryID, avator } = req.body;
+
+    const [result] = await BariketDB.query(
+      `UPDATE products SET brand=?, model=?, priceUSD=?, categoryID=?, avator=? WHERE id=?`,
+      [brand, model, priceUSD, categoryID, avator, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "محصول پیدا نشد" });
+    }
+
+    res.json({ message: "محصول بروزرسانی شد" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "خطا در ویرایش محصول", error: err.message });
+  }
+});
+
+// ❌ حذف محصول
+productsRouter.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await BariketDB.query(`DELETE FROM products WHERE id=?`, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "محصول پیدا نشد" });
+    }
+
+    res.json({ message: "محصول حذف شد" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "خطا در حذف محصول", error: err.message });
   }
 });
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import CommentModal from "../components/CommentModal"; // کامپوننت Modal جدا
 
 const API_URL = "http://localhost:5000/api/comments";
 
@@ -6,7 +7,6 @@ const Comments = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingComment, setEditingComment] = useState(null);
-  const [updatedContent, setUpdatedContent] = useState("");
 
   const fetchComments = useCallback(async () => {
     setLoading(true);
@@ -22,9 +22,7 @@ const Comments = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+  useEffect(() => { fetchComments(); }, [fetchComments]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("آیا مطمئن هستید؟")) return;
@@ -37,16 +35,15 @@ const Comments = () => {
     }
   };
 
-  const handleEditSave = async () => {
+  const handleSave = async (updatedComment) => {
     try {
-      const res = await fetch(`${API_URL}/${editingComment.id}`, {
+      const res = await fetch(`${API_URL}/${updatedComment.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: updatedContent }),
+        body: JSON.stringify({ comment: updatedComment.comment, rating: updatedComment.rating }),
       });
       if (!res.ok) throw new Error("خطا در بروزرسانی کامنت");
       setEditingComment(null);
-      setUpdatedContent("");
       fetchComments();
     } catch (err) {
       console.error(err);
@@ -79,21 +76,20 @@ const Comments = () => {
                 <td className="border p-2">{idx + 1}</td>
                 <td className="border p-2">{c.accountName}</td>
                 <td className="border p-2">{c.productBrand} - {c.productModel}</td>
-                <td className="border p-2">{c.content}</td>
-                <td className="border p-2">{new Date(c.created_at).toLocaleString()}</td>
+                <td className="border p-2">{c.comment}</td>
+                <td className="border p-2">{new Date(c.created_at).toLocaleString("fa-IR")}</td>
                 <td className="border p-2 space-x-2">
                   <button
-                    onClick={() => {
-                      setEditingComment(c);
-                      setUpdatedContent(c.content);
-                    }}
+                    onClick={() => setEditingComment(c)}
                     className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    aria-label={`ویرایش کامنت ${c.accountName}`}
                   >
                     ویرایش
                   </button>
                   <button
                     onClick={() => handleDelete(c.id)}
                     className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    aria-label={`حذف کامنت ${c.accountName}`}
                   >
                     حذف
                   </button>
@@ -104,32 +100,12 @@ const Comments = () => {
         </table>
       )}
 
-      {/* ---------- Edit Modal ---------- */}
       {editingComment && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow w-full max-w-md space-y-4">
-            <h2 className="text-xl font-semibold">ویرایش کامنت</h2>
-            <textarea
-              value={updatedContent}
-              onChange={(e) => setUpdatedContent(e.target.value)}
-              className="w-full border p-2 rounded"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setEditingComment(null)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                لغو
-              </button>
-              <button
-                onClick={handleEditSave}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                ذخیره
-              </button>
-            </div>
-          </div>
-        </div>
+        <CommentModal
+          comment={editingComment}
+          onClose={() => setEditingComment(null)}
+          onSave={handleSave}
+        />
       )}
     </div>
   );

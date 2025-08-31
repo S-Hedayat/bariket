@@ -1,27 +1,61 @@
-// src/api/api.js
-
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-// Helper برای fetch با JWT (اختیاری)
-const fetchWithAuth = async (url, options = {}) => {
-  const token = localStorage.getItem("token"); // فرض بر JWT در localStorage
-  const headers = { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) };
-  const res = await fetch(url, { ...options, headers });
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "خطای شبکه");
+// Helper برای fetch با JWT
+const fetchWithAuth = async (url, options = {}, timeout = 10000) => {
+  const token = localStorage.getItem("token");
+
+  // اگر کاربر فایل آپلود می‌کند، هدر Content-Type رو خود مرورگر ست می‌کنه
+  const isFormData = options.body instanceof FormData;
+  const headers = {
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(!isFormData && { "Content-Type": "application/json" }),
+    ...options.headers,
+  };
+
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const res = await fetch(url, { ...options, headers, signal: controller.signal });
+    clearTimeout(id);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || `خطای شبکه: ${res.status}`);
+    }
+    return res.json();
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error("درخواست بیش از حد طول کشید!");
+    throw err;
   }
-  return res.json();
 };
 
 // ----------------- Products -----------------
-export const fetchProducts = async (page = 1, limit = 20) => {
-  return fetchWithAuth(`${API_URL}/products?page=${page}&limit=${limit}`);
+export const fetchProducts = async () =>
+  fetchWithAuth(`${API_URL}/products`);
+
+export const fetchProductById = async (id) =>
+  fetchWithAuth(`${API_URL}/products/${id}`);
+
+export const createProduct = async (data) => {
+  const formData = new FormData();
+  for (const key in data) formData.append(key, data[key]);
+  return fetchWithAuth(`${API_URL}/products`, {
+    method: "POST",
+    body: formData,
+  });
 };
 
-export const fetchProductById = async (id) => {
-  return fetchWithAuth(`${API_URL}/products/${id}`);
+export const updateProduct = async (id, data) => {
+  const formData = new FormData();
+  for (const key in data) formData.append(key, data[key]);
+  return fetchWithAuth(`${API_URL}/products/${id}`, {
+    method: "PUT",
+    body: formData,
+  });
 };
+
+export const deleteProduct = async (id) =>
+  fetchWithAuth(`${API_URL}/products/${id}`, { method: "DELETE" });
 
 // ----------------- Comments -----------------
 export const fetchComments = async (productId) => {
@@ -29,36 +63,34 @@ export const fetchComments = async (productId) => {
   return fetchWithAuth(url);
 };
 
-export const postComment = async (productId, content) => {
-  return fetchWithAuth(`${API_URL}/comments`, {
+export const postComment = async (productId, content) =>
+  fetchWithAuth(`${API_URL}/comments`, {
     method: "POST",
     body: JSON.stringify({ productID: productId, content }),
   });
-};
 
 // ----------------- Accounts (Profile) -----------------
-export const fetchAccountById = async (id) => {
-  return fetchWithAuth(`${API_URL}/accounts/${id}`);
-};
+export const fetchAccountById = async (id) =>
+  fetchWithAuth(`${API_URL}/accounts/${id}`);
 
 export const updateAccount = async (id, data) => {
+  const formData = new FormData();
+  for (const key in data) formData.append(key, data[key]);
   return fetchWithAuth(`${API_URL}/accounts/${id}`, {
     method: "PUT",
-    body: JSON.stringify(data),
+    body: formData,
   });
 };
 
 // ----------------- Orders -----------------
-export const createOrder = async (items, total) => {
-  return fetchWithAuth(`${API_URL}/orders`, {
+export const createOrder = async (items, total) =>
+  fetchWithAuth(`${API_URL}/orders`, {
     method: "POST",
     body: JSON.stringify({ items, total }),
   });
-};
 
-export const fetchOrders = async (page = 1, limit = 20) => {
-  return fetchWithAuth(`${API_URL}/orders?page=${page}&limit=${limit}`);
-};
+export const fetchOrders = async () =>
+  fetchWithAuth(`${API_URL}/orders`);
 
 // ----------------- Login -----------------
 export const login = async (email, password) => {
@@ -74,7 +106,7 @@ export const login = async (email, password) => {
   }
 
   const data = await res.json();
-  if (data.token) localStorage.setItem("token", data.token); // ذخیره توکن برای درخواست‌های بعدی
+  if (data.token) localStorage.setItem("token", data.token);
   return data;
 };
 

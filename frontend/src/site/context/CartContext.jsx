@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 
 // Context
@@ -9,7 +9,20 @@ export const useCart = () => useContext(CartContext);
 
 // Provider
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  // بارگذاری اولیه از localStorage
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cartItems");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // ذخیره در localStorage هنگام تغییر cartItems
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   // اضافه کردن محصول به سبد
   const addToCart = (product, quantity = 1) => {
@@ -25,7 +38,7 @@ export const CartProvider = ({ children }) => {
         return [...prev, { ...product, quantity }];
       }
     });
-    toast.success("✅ محصول به سبد خرید اضافه شد");
+    toast.success(`✅ ${product.brand} ${product.model} به سبد اضافه شد`);
   };
 
   // حذف محصول
@@ -42,10 +55,10 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  // جمع کل
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.priceUSD * item.quantity,
-    0
+  // جمع کل با useMemo برای پرفورمنس
+  const totalPrice = useMemo(
+    () => cartItems.reduce((total, item) => total + item.priceUSD * item.quantity, 0),
+    [cartItems]
   );
 
   // ثبت سفارش در سرور
@@ -81,7 +94,7 @@ export const CartProvider = ({ children }) => {
       const data = await res.json();
       toast.success("✅ سفارش ثبت شد. کد سفارش: " + data.insertedId);
 
-      // بعد از موفقیت، سبد رو خالی کن
+      // بعد از موفقیت، سبد را خالی کن
       setCartItems([]);
 
       return data;

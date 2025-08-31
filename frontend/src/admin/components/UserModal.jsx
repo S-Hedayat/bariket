@@ -35,21 +35,93 @@ const UserModal = ({ user, onClose, onSave, readOnly = false }) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md p-6 space-y-4 shadow-lg relative">
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
+          aria-label="بستن پنجره"
+        >
+          &times;
+        </button>
+
         <h2 className="text-xl font-semibold">{readOnly ? "مشاهده کاربر" : "ویرایش کاربر"}</h2>
+
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="نام کاربر" className="border p-2 rounded w-full" required disabled={readOnly} />
-          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ایمیل" className="border p-2 rounded w-full" required disabled={readOnly} />
-          {!readOnly && <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="رمز عبور جدید (در صورت نیاز)" className="border p-2 rounded w-full" />}
-          <select name="role" value={formData.role} onChange={handleChange} className="border p-2 rounded w-full" disabled={readOnly}>
-            <option value="user">کاربر عادی</option>
-            <option value="admin">ادمین</option>
-          </select>
-          <select name="status" value={formData.status} onChange={handleChange} className="border p-2 rounded w-full" disabled={readOnly}>
-            <option value={1}>فعال</option>
-            <option value={0}>غیرفعال</option>
-          </select>
-          {!readOnly && <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">ذخیره تغییرات</button>}
+          <label className="block">
+            نام کاربر
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+              required
+              disabled={readOnly}
+            />
+          </label>
+
+          <label className="block">
+            ایمیل
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+              required
+              disabled={readOnly}
+            />
+          </label>
+
+          {!readOnly && (
+            <label className="block">
+              رمز عبور جدید (در صورت نیاز)
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="border p-2 rounded w-full"
+              />
+            </label>
+          )}
+
+          <label className="block">
+            نقش
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+              disabled={readOnly}
+            >
+              <option value="user">کاربر عادی</option>
+              <option value="admin">ادمین</option>
+            </select>
+          </label>
+
+          <label className="block">
+            وضعیت
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+              disabled={readOnly}
+            >
+              <option value={1}>فعال</option>
+              <option value={0}>غیرفعال</option>
+            </select>
+          </label>
+
+          {!readOnly && (
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              ذخیره تغییرات
+            </button>
+          )}
         </form>
       </div>
     </div>

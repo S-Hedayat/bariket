@@ -16,7 +16,7 @@ const XIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.X })
 const navLinks = [
   { to: "/", label: "خانه", icon: HomeIcon },
   { to: "/product", label: "محصولات", icon: PackageIcon },
-  { to: "/card", label: "سبد خرید", icon: UsersIcon },
+  { to: "/cart", label: "سبد خرید", icon: UsersIcon },
   { to: "/profile", label: "پروفایل", icon: UserIcon },
   { to: "/about", label: "درباره ما", icon: InfoIcon },
   { to: "/contact", label: "تماس", icon: PhoneIcon },

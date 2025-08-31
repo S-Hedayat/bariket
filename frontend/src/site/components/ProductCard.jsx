@@ -2,14 +2,19 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const ProductCard = React.memo(({ product }) => {
+  // اگر thumbnail موجود باشد، از آن استفاده کن، در غیر این صورت avator اصلی
+  const imageUrl = product.thumbnail
+    ? `http://localhost:5000${product.thumbnail}`
+    : `http://localhost:5000${product.avator}`;
+
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-md transition p-3 w-56">
       <Link to={`/products/${product.id}`}>
         <img
-          src={`http://localhost:5000/uploads/${product.avator.replace(".webp", "-thumb.webp")}`}
+          src={imageUrl}
           alt={`${product.brand} ${product.model}`}
           className="w-full h-32 object-cover rounded-lg mb-2"
-          loading="lazy"   // مهم برای performance
+          loading="lazy"
         />
       </Link>
 
