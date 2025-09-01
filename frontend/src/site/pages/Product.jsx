@@ -16,7 +16,7 @@ const Product = () => {
   const banner = useMemo(() => {
     return <h2 className="text-2xl font-bold mb-6">محصولات</h2>
   }, []);
-  
+
   const loadProducts = useCallback(async (page = 1) => {
     setLoading(true);
     setError(null);
@@ -24,8 +24,10 @@ const Product = () => {
       const data = await fetchProducts(page, PRODUCTS_PER_PAGE);
       if (data?.products) {
         setProducts(data.products);
-        setTotalProducts(data.total || data.products.length);
-      } else {
+        setTotalProducts(data.total);  // تعداد کل محصولات
+        // حتی میتونی به جای محاسبه دستی، totalPages از بک‌اند بگیری
+      }
+      else {
         setProducts([]);
         setTotalProducts(0);
       }

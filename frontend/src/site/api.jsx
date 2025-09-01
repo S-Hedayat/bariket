@@ -1,10 +1,11 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = "https://bariket-backend.onrender.com"; 
 
-// Helper برای fetch با JWT
+
+// 🌟 Helper برای fetch با JWT و مدیریت Timeout
 const fetchWithAuth = async (url, options = {}, timeout = 10000) => {
   const token = localStorage.getItem("token");
 
-  // اگر کاربر فایل آپلود می‌کند، هدر Content-Type رو خود مرورگر ست می‌کنه
+  // اگر فایل آپلود می‌شود، مرورگر خودش Content-Type رو ست می‌کند
   const isFormData = options.body instanceof FormData;
   const headers = {
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -16,12 +17,20 @@ const fetchWithAuth = async (url, options = {}, timeout = 10000) => {
   const id = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const res = await fetch(url, { ...options, headers, signal: controller.signal });
+    const res = await fetch(url, {
+      ...options,
+      headers,
+      signal: controller.signal,
+      credentials: "include", // 🔑 مهم برای هماهنگی با CORS
+    });
+
     clearTimeout(id);
+
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.message || `خطای شبکه: ${res.status}`);
     }
+
     return res.json();
   } catch (err) {
     if (err.name === "AbortError") throw new Error("درخواست بیش از حد طول کشید!");
@@ -30,8 +39,10 @@ const fetchWithAuth = async (url, options = {}, timeout = 10000) => {
 };
 
 // ----------------- Products -----------------
-export const fetchProducts = async () =>
-  fetchWithAuth(`${API_URL}/products`);
+export const fetchProducts = async (page = 1, limit = 12) => {
+  const url = `${API_URL}/products?page=${page}&limit=${limit}`;
+  return fetchWithAuth(url);
+};
 
 export const fetchProductById = async (id) =>
   fetchWithAuth(`${API_URL}/products/${id}`);
@@ -59,7 +70,9 @@ export const deleteProduct = async (id) =>
 
 // ----------------- Comments -----------------
 export const fetchComments = async (productId) => {
-  const url = productId ? `${API_URL}/comments?productID=${productId}` : `${API_URL}/comments`;
+  const url = productId
+    ? `${API_URL}/comments?productID=${productId}`
+    : `${API_URL}/comments`;
   return fetchWithAuth(url);
 };
 
@@ -98,6 +111,7 @@ export const login = async (email, password) => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
+    credentials: "include", // 🔑 اینجا هم اضافه شد
   });
 
   if (!res.ok) {
