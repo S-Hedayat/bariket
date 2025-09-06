@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const UserModal = ({ user, onClose, onSave, readOnly = false }) => {
   const [formData, setFormData] = useState({
@@ -21,20 +21,23 @@ const UserModal = ({ user, onClose, onSave, readOnly = false }) => {
     }
   }, [user]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSave) onSave({ ...user, ...formData });
-    onClose();
-  };
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (onSave) onSave({ ...user, ...formData });
+      onClose();
+    },
+    [formData, onSave, onClose, user]
+  );
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-md p-6 space-y-4 shadow-lg relative">
+     <div className="bg-white rounded-lg w-full max-w-[90%] sm:max-w-md p-4 sm:p-6 space-y-4 shadow-lg relative animate-fadeIn mx-auto my-8 overflow-auto">
         <button
           type="button"
           onClick={onClose}
@@ -44,7 +47,9 @@ const UserModal = ({ user, onClose, onSave, readOnly = false }) => {
           &times;
         </button>
 
-        <h2 className="text-xl font-semibold">{readOnly ? "مشاهده کاربر" : "ویرایش کاربر"}</h2>
+        <h2 className="text-xl font-semibold">
+          {readOnly ? "مشاهده کاربر" : "ویرایش کاربر"}
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <label className="block">
@@ -128,4 +133,4 @@ const UserModal = ({ user, onClose, onSave, readOnly = false }) => {
   );
 };
 
-export default UserModal;
+export default React.memo(UserModal);

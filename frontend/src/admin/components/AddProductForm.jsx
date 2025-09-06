@@ -21,7 +21,7 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
     setPreview(f ? URL.createObjectURL(f) : null);
   }, []);
 
-  // آزاد کردن حافظه
+  // آزادسازی حافظه
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
@@ -44,40 +44,56 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
   }, [file]);
 
   // ➕ افزودن محصول
-  const handleAddProduct = useCallback(async (e) => {
-    e.preventDefault();
-    try {
-      const imagePath = file ? await handleFileUpload() : "";
-      const payload = {
-        ...newProduct,
-        avator: imagePath,
-        priceUSD: Number(newProduct.priceUSD),
-      };
+  const handleAddProduct = useCallback(
+    async (e) => {
+      e.preventDefault();
+      try {
+        const imagePath = file ? await handleFileUpload() : "";
+        const payload = {
+          ...newProduct,
+          avator: imagePath,
+          priceUSD: Number(newProduct.priceUSD),
+        };
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "خطا در افزودن محصول");
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "خطا در افزودن محصول");
 
-      setProducts((prev) => [{ ...payload, id: data.id, updatedAt: Date.now() }, ...prev]);
-      setTotal((prev) => prev + 1);
-      setNewProduct({ brand: "", model: "", priceUSD: "", categoryID: "", avator: "" });
-      setFile(null);
-      setPreview(null);
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "خطا در افزودن محصول");
-    }
-  }, [newProduct, file, handleFileUpload, setProducts, setTotal]);
+        // 🔹 اضافه کردن cache-buster به تصویر
+        setProducts((prev) => [
+          {
+            ...payload,
+            id: data.id,
+            updatedAt: Date.now(),
+            avator: payload.avator ? `${payload.avator}?t=${Date.now()}` : "",
+          },
+          ...prev,
+        ]);
+
+        setTotal((prev) => prev + 1);
+        setNewProduct({ brand: "", model: "", priceUSD: "", categoryID: "", avator: "" });
+        setFile(null);
+        setPreview(null);
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "خطا در افزودن محصول");
+      }
+    },
+    [newProduct, file, handleFileUpload, setProducts, setTotal]
+  );
 
   // 🔹 Category options memoized
   const categoryOptions = useMemo(
-    () => categories.map((c) => (
-      <option key={c.id} value={c.id}>{c.name}</option>
-    )),
+    () =>
+      categories.map((c) => (
+        <option key={c.id} value={c.id}>
+          {c.name}
+        </option>
+      )),
     [categories]
   );
 
@@ -90,9 +106,7 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
-          <label htmlFor="brand" className="sr-only">Brand</label>
           <input
-            id="brand"
             type="text"
             placeholder="Brand"
             value={newProduct.brand}
@@ -101,11 +115,8 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
             required
           />
         </div>
-
         <div>
-          <label htmlFor="model" className="sr-only">Model</label>
           <input
-            id="model"
             type="text"
             placeholder="Model"
             value={newProduct.model}
@@ -114,11 +125,8 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
             required
           />
         </div>
-
         <div>
-          <label htmlFor="price" className="sr-only">Price</label>
           <input
-            id="price"
             type="number"
             placeholder="Price"
             value={newProduct.priceUSD}
@@ -127,11 +135,8 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
             required
           />
         </div>
-
         <div>
-          <label htmlFor="category" className="sr-only">دسته‌بندی</label>
           <select
-            id="category"
             value={newProduct.categoryID}
             onChange={(e) => setNewProduct({ ...newProduct, categoryID: e.target.value })}
             className="border p-2 rounded w-full"
@@ -144,27 +149,12 @@ const AddProductForm = ({ setProducts, setTotal, categories }) => {
       </div>
 
       <div>
-        <label htmlFor="productImage" className="block mb-1">تصویر محصول</label>
-        <input
-          id="productImage"
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="border p-2 rounded w-full"
-        />
-        {preview && (
-          <img
-            src={preview}
-            alt="پیش‌نمایش تصویر محصول"
-            className="w-32 h-32 object-cover rounded mt-2"
-          />
-        )}
+        <label className="block mb-1">تصویر محصول</label>
+        <input type="file" accept="image/*" onChange={handleFileChange} className="border p-2 rounded w-full" />
+        {preview && <img src={preview} alt="پیش‌نمایش" className="w-32 h-32 object-cover rounded mt-2" />}
       </div>
 
-      <button
-        type="submit"
-        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
+      <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
         افزودن
       </button>
     </form>

@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
- import tailwindcss from '@tailwindcss/vite' 
+import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),tailwindcss(),],
+  plugins: [react(), tailwindcss(),],
   css: {
     // Tailwind 4 خودش از PostCSS استفاده می‌کنه، نیازی به پلاگین جداگانه نیست
   },
@@ -14,13 +14,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // تقسیم بندی ماژول‌های سنگین
           react: ['react', 'react-dom'],
           router: ['react-router-dom'],
           lucide: ['lucide-react'],
           virtualized: ['react-virtualized'],
           framer: ['framer-motion']
-        }
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
   },

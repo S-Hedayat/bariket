@@ -16,24 +16,19 @@ const PORT = process.env.PORT || 5000;
 
 // ----------------- CORS -----------------
 const allowedOrigins = [
-  "http://localhost:5173",        // لوکال برای توسعه
-  "https://bariket.onrender.com", // فرانت روی Render
+  "http://localhost:5173",        // لوکال
+  "https://bariket.onrender.com" // فرانت Render
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // اجازه ارسال کوکی/Authorization header
-  })
-);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+    else callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+}));
 
-// ----------------- Parse body
+// ----------------- Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
@@ -51,11 +46,13 @@ app.use("/api/orders", ordersRouter);
 // ----------------- Serve Frontend
 const frontendPath = path.join(__dirname, "../frontend/dist");
 app.use(express.static(frontendPath));
-app.get("*", (req, res) => {
+
+// همه مسیرهای غیر API به Frontend ری‌دایرکت شوند
+app.get("/*", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 // ----------------- Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} - server.js:60`);
+  console.log(`🚀 Server running on port ${PORT} - server.js:57`);
 });

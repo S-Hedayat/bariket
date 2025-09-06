@@ -1,11 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 
-const Header = React.memo(() => {
-  return (
-    <header className="bg-blue-600 text-white p-4">
-      <h1 className="text-xl font-bold">Bariket Admin</h1>
-    </header>
-  );
-});
+const Header = () => (
+  <header className="bg-blue-600 text-white p-4">
+    <h1 className="text-xl font-bold">Bariket Admin</h1>
+  </header>
+);
 
-export default Header;
+export default memo(Header);

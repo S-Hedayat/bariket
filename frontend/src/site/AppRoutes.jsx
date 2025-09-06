@@ -1,10 +1,10 @@
-// src/AppRoutes.jsx
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Navbar from './components/Navbar'
+
 // صفحات Lazy Load
 const Home = lazy(() => import("./pages/Home"));
-const Products = lazy(() => import("./pages/Product"));          // لیست محصولات
+const Product = lazy(() => import("./pages/Product"));          // لیست محصولات
 const ProductDetails = lazy(() => import("./pages/ProductDetails")); // جزئیات محصول
 const Cart = lazy(() => import("./pages/Cart"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -25,12 +25,12 @@ const AppRoutes = () => (
     <Navbar />
     <Routes>
       <Route path="/" element={<Home />} />
-      
-      {/* لیست محصولات */}
-      <Route path="/product" element={<Products />} />
 
-      {/* جزئیات محصول */}
-      <Route path="/products/:id" element={<ProductDetails />} />
+      {/* جزئیات محصول (قبل از لیست محصولات) */}
+      <Route path="/product/:id" element={<ProductDetails />} />
+
+      {/* لیست محصولات */}
+      <Route path="/product" element={<Product />} />
 
       <Route path="/about" element={<About />} />
       <Route path="/cart" element={<Cart />} />

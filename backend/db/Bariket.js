@@ -1,7 +1,7 @@
+// backend/db/Bariket.js
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
-// ✅ چاپ وضعیت برای دیباگ (اختیاری - بعدا می‌تونی برداری)
 console.log("Connecting to DB: - Bariket.js:5", {
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
@@ -13,10 +13,10 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "bariket",
-  port: process.env.DB_PORT || 3306, // ✅ برای Render یا هاست خارجی لازم میشه
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: true } : false, // ✅ اگر دیتابیس Render یا خارجی SSL بخواد
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: true } : false,
 });
 
 module.exports = pool;

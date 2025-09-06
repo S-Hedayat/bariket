@@ -1,8 +1,11 @@
-// Settings.jsx
+// src/pages/Settings.jsx
 import React, { useEffect, useState } from "react";
 import UserModal from "../components/UserModal";
-
-const API_URL = "http://localhost:5000/api/accounts";
+import {
+  fetchAccounts,
+  fetchAccountById,
+  updateAccount,
+} from "../../site/api";
 
 const Settings = () => {
   const [user, setUser] = useState(null);
@@ -10,20 +13,19 @@ const Settings = () => {
   const [error, setError] = useState("");
   const [editingUser, setEditingUser] = useState(null);
 
-  // 📥 دریافت اطلاعات کاربر
+  // 📥 دریافت اطلاعات ادمین (اولین یوزر یا لاگین‌شده)
   const fetchUser = async () => {
     try {
-      const res = await fetch(`${API_URL}`);
-      const data = await res.json();
-
-      if (!data || data.length === 0) {
+      const { users } = await fetchAccounts(1, 1); // فقط یک یوزر
+      if (!users || users.length === 0) {
         setError("کاربری یافت نشد");
         setUser(null);
       } else {
-        setUser(data[0]); // اولین کاربر را انتخاب می‌کنیم
+        setUser(users[0]); // ادمین یا اولین یوزر
         setError("");
       }
     } catch (err) {
+      console.error(err);
       setError("خطا در دریافت اطلاعات کاربر");
       setUser(null);
     } finally {
@@ -38,13 +40,8 @@ const Settings = () => {
   // ✏️ ذخیره تغییرات کاربر
   const handleSaveUser = async (updatedUser) => {
     try {
-      const res = await fetch(`${API_URL}/${updatedUser.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedUser),
-      });
-      if (!res.ok) throw new Error("خطا در بروزرسانی کاربر");
-      setUser(updatedUser);
+      await updateAccount(updatedUser.id, updatedUser);
+      setUser({ ...user, ...updatedUser });
     } catch (err) {
       console.error(err);
       alert(err.message || "خطا در بروزرسانی کاربر");
@@ -56,7 +53,7 @@ const Settings = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">تنظیمات حساب کاربری</h1>
+      <h1 className="text-2xl font-bold mb-4">تنظیمات حساب ادمین</h1>
 
       {user && (
         <div className="space-y-2 border p-4 rounded bg-white shadow">

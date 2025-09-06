@@ -1,4 +1,3 @@
-// src/pages/Product.jsx
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { fetchProducts } from "../api";
 import ProductCard from "../components/ProductCard";
@@ -13,21 +12,24 @@ const Product = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const banner = useMemo(() => {
-    return <h2 className="text-2xl font-bold mb-6">محصولات</h2>
-  }, []);
+  const banner = useMemo(() => <h2 className="text-2xl font-bold mb-6">محصولات</h2>, []);
 
   const loadProducts = useCallback(async (page = 1) => {
     setLoading(true);
     setError(null);
     try {
       const data = await fetchProducts(page, PRODUCTS_PER_PAGE);
-      if (data?.products) {
+      console.log("Products data:", data);
+
+      if (Array.isArray(data)) {
+        // API فقط آرایه برگردوند
+        setProducts(data);
+        setTotalProducts(data.length);
+      } else if (data?.products) {
+        // API به شکل { products, total }
         setProducts(data.products);
-        setTotalProducts(data.total);  // تعداد کل محصولات
-        // حتی میتونی به جای محاسبه دستی، totalPages از بک‌اند بگیری
-      }
-      else {
+        setTotalProducts(data.total || data.products.length);
+      } else {
         setProducts([]);
         setTotalProducts(0);
       }
@@ -44,7 +46,6 @@ const Product = () => {
   }, [currentPage, loadProducts]);
 
   const totalPages = useMemo(() => Math.ceil(totalProducts / PRODUCTS_PER_PAGE), [totalProducts]);
-
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
@@ -58,7 +59,7 @@ const Product = () => {
       {banner}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id || product._id} product={product} />
         ))}
       </div>
       {totalPages > 1 && (

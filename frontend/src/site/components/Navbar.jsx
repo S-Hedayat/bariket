@@ -1,89 +1,98 @@
-import React, { useState, memo, Suspense, lazy } from "react";
+import React, { useState, memo } from "react";
 import { NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Lazy load icons
-const HomeIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Home })));
-const PackageIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Package })));
-const UsersIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Users })));
-const UserIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.User })));
-const InfoIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Info })));
-const PhoneIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Phone })));
-const GridIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Grid })));
-const MenuIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.Menu })));
-const XIcon = lazy(() => import("lucide-react").then(mod => ({ default: mod.X })));
+import { Home, Package, Users, User, Info, Phone, Grid, Menu, X } from "lucide-react";
 
 const navLinks = [
-  { to: "/", label: "خانه", icon: HomeIcon },
-  { to: "/product", label: "محصولات", icon: PackageIcon },
-  { to: "/cart", label: "سبد خرید", icon: UsersIcon },
-  { to: "/profile", label: "پروفایل", icon: UserIcon },
-  { to: "/about", label: "درباره ما", icon: InfoIcon },
-  { to: "/contact", label: "تماس", icon: PhoneIcon },
-  { to: "/admin/dashboard", label: "داشبورد ادمین", icon: GridIcon },
+  { to: "/", label: "خانه", icon: Home },
+  { to: "/product", label: "محصولات", icon: Package },
+  { to: "/cart", label: "سبد خرید", icon: Users },
+  { to: "/profile", label: "پروفایل", icon: User },
+  { to: "/about", label: "درباره ما", icon: Info },
+  { to: "/contact", label: "تماس", icon: Phone },
+  { to: "/admin/dashboard", label: "داشبورد ادمین", icon: Grid },
 ];
 
-const linkClass = "flex items-center gap-2 px-4 py-2 rounded-md min-h-[48px]";
-const activeClass = "bg-white";
+const linkClass = "flex items-center gap-2 px-4 py-3 rounded-md text-lg transition-colors";
+const activeClass = "bg-blue-100 text-blue-700 font-semibold";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="bg-blue-300 shadow-md p-4 relative">
-      {/* Desktop */}
-      <div className="hidden md:flex gap-4">
-        {navLinks.map(({ to, label, icon: Icon }) => (
-          <Suspense key={to} fallback={<div className="w-5 h-5 bg-gray-200 rounded" />}>
+    <nav className="bg-blue-600 text-white shadow-md relative z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
+        {/* لوگو */}
+        <span className="font-bold text-lg cursor-pointer">Bariket</span>
+
+        {/* لینک‌های دسکتاپ */}
+        <div className="hidden md:flex gap-4">
+          {navLinks.map(({ to, label, icon: Icon }) => (
             <NavLink
+              key={to}
               to={to}
               end={to === "/"}
-              className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+              className={({ isActive }) =>
+                `${linkClass} ${isActive ? activeClass : "hover:bg-blue-500"}`
+              }
             >
               <Icon size={20} className="flex-shrink-0" />
-              <span className="leading-none">{label}</span>
+              <span>{label}</span>
             </NavLink>
-          </Suspense>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Mobile */}
-      <div className="flex md:hidden justify-between items-center">
-        <span className="font-bold text-lg">Bariket</span>
-        <Suspense fallback={<div className="w-6 h-6 bg-gray-200 rounded" />}>
+        {/* دکمه منو موبایل */}
+        <div className="md:hidden">
           <button
             aria-label="Toggle menu"
             onClick={() => setOpen(prev => !prev)}
-            className="p-2"
+            className="p-2 rounded hover:bg-blue-500 transition"
           >
-            {open ? <XIcon size={24} /> : <MenuIcon size={24} />}
+            {open ? <X size={24} /> : <Menu size={24} />}
           </button>
-        </Suspense>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* منوی موبایل تمام‌عرض */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, maxHeight: 0 }}
-            animate={{ opacity: 1, maxHeight: 1000 }}
-            exit={{ opacity: 0, maxHeight: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="flex flex-col mt-2 bg-white shadow-md rounded-md md:hidden overflow-hidden"
+            className="fixed inset-0 bg-white z-50 flex flex-col md:hidden"
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
           >
-            {navLinks.map(({ to, label, icon: Icon }) => (
-              <Suspense key={to} fallback={<div className="w-5 h-5 bg-gray-200 rounded my-1" />}>
+            {/* هدر منوی موبایل */}
+            <div className="flex justify-between items-center p-4 border-b shadow-sm">
+              <span className="font-bold text-xl text-blue-700">منو</span>
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="بستن"
+                className="p-2 rounded hover:bg-gray-200"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* لینک‌ها */}
+            <div className="flex flex-col p-4 gap-3">
+              {navLinks.map(({ to, label, icon: Icon }) => (
                 <NavLink
+                  key={to}
                   to={to}
                   end={to === "/"}
-                  className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+                  className={({ isActive }) =>
+                    `${linkClass} ${isActive ? activeClass : "hover:bg-gray-100 text-blue-600"}`
+                  }
                   onClick={() => setOpen(false)}
                 >
-                  <Icon size={20} className="flex-shrink-0" />
-                  <span className="leading-none">{label}</span>
+                  <Icon size={22} />
+                  <span>{label}</span>
                 </NavLink>
-              </Suspense>
-            ))}
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

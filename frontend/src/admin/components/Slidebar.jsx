@@ -1,7 +1,17 @@
 import { useState } from "react";
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Menu, X, Grid, Users, Clipboard, Package, Settings as SettingsIcon } from "lucide-react";
+import {
+  Home,
+  Menu,
+  X,
+  Grid,
+  Users,
+  Clipboard,
+  Package,
+  Settings as SettingsIcon,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -16,36 +26,73 @@ const Sidebar = () => {
     { to: "/admin/settings", label: "Settings", icon: <SettingsIcon size={16} /> },
   ];
 
-  const linkClass = "flex items-center gap-2 p-2 rounded hover:bg-blue-100 transition-colors";
+  const linkClass =
+    "flex items-center gap-2 p-2 rounded hover:bg-blue-100 transition-colors";
   const activeClass = "bg-blue-200 font-semibold";
 
   return (
     <>
-      {/* موبایل */}
-      <div className="md:hidden bg-gray-100 p-4 shadow">
+      {/* دکمه منو در موبایل */}
+      {!open && (
         <button
-          onClick={() => setOpen(!open)}
-          aria-label={open ? "بستن منو" : "باز کردن منو"}
-          aria-expanded={open}
+          onClick={() => setOpen(true)}
+          aria-label="باز کردن منو"
+          className="md:hidden fixed top-4 left-4 z-50 bg-gray-100 p-2 rounded shadow"
         >
-          {open ? <X size={24} /> : <Menu size={24} />}
+          <Menu size={24} />
         </button>
-      </div>
-
-      {open && (
-        <div className="md:hidden bg-gray-100 p-4 flex flex-col gap-2">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
-              onClick={() => setOpen(false)}
-            >
-              {link.icon} {link.label}
-            </NavLink>
-          ))}
-        </div>
       )}
+
+      {/* سایدبار موبایل با انیمیشن */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* بک‌دراپ تیره پشت منو */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOpen(false)}
+            />
+
+            {/* خود سایدبار */}
+            <motion.div
+              className="fixed top-0 left-0 h-full w-64 bg-gray-100 z-50 shadow-lg flex flex-col p-6 gap-4"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+            >
+              {/* بالای سایدبار */}
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-bold text-lg">Bariket</span>
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="بستن منو"
+                  className="p-2 rounded hover:bg-gray-200"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* لینک‌ها */}
+              {links.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `${linkClass} ${isActive ? activeClass : ""}`
+                  }
+                  onClick={() => setOpen(false)}
+                >
+                  {link.icon} {link.label}
+                </NavLink>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* دسکتاپ */}
       <aside className="hidden md:flex md:flex-col md:w-64 md:bg-gray-100 md:min-h-screen md:p-4 md:shadow">
@@ -53,7 +100,9 @@ const Sidebar = () => {
           <NavLink
             key={link.to}
             to={link.to}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             {link.icon} {link.label}
           </NavLink>
