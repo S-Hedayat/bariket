@@ -1,6 +1,9 @@
 // src/api.jsx
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL ||
+  (window.location.hostname === "localhost"
+    ? "http://localhost:5000/api"
+    : "https://bariket.onrender.com/api");
 
 // ----------------- Helpers -----------------
 const normalizeProducts = (products) =>
